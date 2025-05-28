@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define N 1000
+
+void gerarVetor(int v[]) {
+    for (int i = 0; i < N; i++) {
+        v[i] = rand() % 10000;
+    }
+}
+
+void copiarVetor(int origem[], int destino[]) {
+    for (int i = 0; i < N; i++) {
+        destino[i] = origem[i];
+    }
+}
+
+void imprimirVetor(int v[]) {
+    printf("Início: ");
+    for (int i = 0; i < 10; i++) {
+        printf("%d ", v[i]);
+    }
+    printf("\nFim:    ");
+    for (int i = N - 10; i < N; i++) {
+        printf("%d ", v[i]);
+    }
+    printf("\n");
+}
+
+void bubbleSort(int v[], int crescente) {
+    for (int i = 0; i < N - 1; i++) {
+        for (int j = 0; j < N - i - 1; j++) {
+            if ((crescente && v[j] > v[j + 1]) || (!crescente && v[j] < v[j + 1])) {
+                int temp = v[j];
+                v[j] = v[j + 1];
+                v[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void selectionSort(int v[], int crescente) {
+    for (int i = 0; i < N - 1; i++) {
+        int idx = i;
+        for (int j = i + 1; j < N; j++) {
+            if ((crescente && v[j] < v[idx]) || (!crescente && v[j] > v[idx])) {
+                idx = j;
+            }
+        }
+        int temp = v[i];
+        v[i] = v[idx];
+        v[idx] = temp;
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    int original[N], v1[N], v2[N];
+
+    gerarVetor(original);
+    printf("Vetor Original:\n");
+    imprimirVetor(original);
+
+    copiarVetor(original, v1);
+    bubbleSort(v1, 1);
+    printf("\nBubble Sort Crescente:\n");
+    imprimirVetor(v1);
+
+    copiarVetor(original, v1);
+    bubbleSort(v1, 0);
+    printf("\nBubble Sort Decrescente:\n");
+    imprimirVetor(v1);
+
+    copiarVetor(original, v2);
+    selectionSort(v2, 1);
+    printf("\nSelection Sort Crescente:\n");
+    imprimirVetor(v2);
+
+    copiarVetor(original, v2);
+    selectionSort(v2, 0);
+    printf("\nSelection Sort Decrescente:\n");
+    imprimirVetor(v2);
+
+    return 0;
+}
