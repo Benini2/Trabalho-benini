@@ -1,0 +1,200 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 100
+
+// Estruturas
+typedef struct {
+    int id;
+    char nome[100];
+    char cpf[15];
+} Cliente;
+
+typedef struct {
+    int id;
+    char nome[100];
+    float preco;
+    int estoque;
+} Produto;
+
+typedef struct {
+    int id_produto;
+    int quantidade;
+    float preco_unitario;
+} ItemVenda;
+
+typedef struct {
+    int id_venda;
+    int id_cliente;
+    int num_itens;
+    ItemVenda itens[10];
+    float total;
+} Venda;
+
+// Globais
+Cliente clientes[MAX];
+int qtd_clientes = 0;
+
+Produto produtos[MAX];
+int qtd_produtos = 0;
+
+Venda vendas[MAX];
+int qtd_vendas = 0;
+
+// Funções de clientes
+void cadastrarCliente() {
+    Cliente c;
+    printf("ID do cliente: ");
+    scanf("%d", &c.id);
+    printf("Nome: ");
+    getchar();
+    fgets(c.nome, 100, stdin);
+    strtok(c.nome, "\n");
+    printf("CPF: ");
+    fgets(c.cpf, 15, stdin);
+    strtok(c.cpf, "\n");
+
+    clientes[qtd_clientes++] = c;
+    printf("Cliente cadastrado com sucesso!\n\n");
+}
+
+void listarClientes() {
+    for (int i = 0; i < qtd_clientes; i++) {
+        printf("ID: %d, Nome: %s, CPF: %s\n", clientes[i].id, clientes[i].nome, clientes[i].cpf);
+    }
+    printf("\n");
+}
+
+// Funções de produtos
+void cadastrarProduto() {
+    Produto p;
+    printf("ID do produto: ");
+    scanf("%d", &p.id);
+    printf("Nome: ");
+    getchar();
+    fgets(p.nome, 100, stdin);
+    strtok(p.nome, "\n");
+    printf("Preço: ");
+    scanf("%f", &p.preco);
+    printf("Estoque: ");
+    scanf("%d", &p.estoque);
+
+    produtos[qtd_produtos++] = p;
+    printf("Produto cadastrado com sucesso!\n\n");
+}
+
+void listarProdutos() {
+    for (int i = 0; i < qtd_produtos; i++) {
+        printf("ID: %d, Nome: %s, Preço: R$ %.2f, Estoque: %d\n", produtos[i].id, produtos[i].nome, produtos[i].preco, produtos[i].estoque);
+    }
+    printf("\n");
+}
+
+// Buscar produto pelo ID
+Produto* buscarProduto(int id) {
+    for (int i = 0; i < qtd_produtos; i++) {
+        if (produtos[i].id == id) return &produtos[i];
+    }
+    return NULL;
+}
+
+// Buscar cliente pelo ID
+Cliente* buscarCliente(int id) {
+    for (int i = 0; i < qtd_clientes; i++) {
+        if (clientes[i].id == id) return &clientes[i];
+    }
+    return NULL;
+}
+
+// Função de vendas
+void registrarVenda() {
+    Venda v;
+    v.total = 0;
+
+    printf("ID da venda: ");
+    scanf("%d", &v.id_venda);
+    printf("ID do cliente: ");
+    scanf("%d", &v.id_cliente);
+
+    v.num_itens = 0;
+    while (1) {
+        int id_prod;
+        printf("ID do produto (ou -1 para encerrar): ");
+        scanf("%d", &id_prod);
+        if (id_prod == -1) break;
+
+        Produto* prod = buscarProduto(id_prod);
+        if (!prod) {
+            printf("Produto não encontrado.\n");
+            continue;
+        }
+
+        int qtd;
+        printf("Quantidade: ");
+        scanf("%d", &qtd);
+
+        ItemVenda item;
+        item.id_produto = id_prod;
+        item.quantidade = qtd;
+        item.preco_unitario = prod->preco;
+        v.itens[v.num_itens++] = item;
+
+        v.total += qtd * prod->preco;
+    }
+
+    vendas[qtd_vendas++] = v;
+    printf("Venda registrada com sucesso! Total: R$ %.2f\n\n", v.total);
+}
+
+void listarVendas() {
+    for (int i = 0; i < qtd_vendas; i++) {
+        Venda v = vendas[i];
+        Cliente* c = buscarCliente(v.id_cliente);
+        printf("Venda %d - Cliente: %s\n", v.id_venda, c ? c->nome : "Desconhecido");
+
+        for (int j = 0; j < v.num_itens; j++) {
+            Produto* p = buscarProduto(v.itens[j].id_produto);
+            printf("  Produto: %s, Qtd: %d, Preço: R$ %.2f\n",
+                   p ? p->nome : "Desconhecido",
+                   v.itens[j].quantidade,
+                   v.itens[j].preco_unitario);
+        }
+
+        printf("Total: R$ %.2f\n\n", v.total);
+    }
+}
+
+// Menu
+void menu() {
+    int op;
+    do {
+        printf("\n=== MENU ===\n");
+        printf("1 - Cadastrar Cliente\n");
+        printf("2 - Listar Clientes\n");
+        printf("3 - Cadastrar Produto\n");
+        printf("4 - Listar Produtos\n");
+        printf("5 - Registrar Venda\n");
+        printf("6 - Listar Vendas\n");
+        printf("0 - Sair\n");
+        printf("Opção: ");
+        scanf("%d", &op);
+
+        switch (op) {
+            case 1: cadastrarCliente(); break;
+            case 2: listarClientes(); break;
+            case 3: cadastrarProduto(); break;
+            case 4: listarProdutos(); break;
+            case 5: registrarVenda(); break;
+            case 6: listarVendas(); break;
+            case 0: printf("Saindo...\n"); break;
+            default: printf("Opção inválida.\n");
+        }
+    } while (op != 0);
+}
+
+// Main
+int main() {
+    menu();
+    return 0;
+}
