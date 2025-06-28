@@ -1,0 +1,137 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 10
+
+// Structs
+typedef struct {
+    int id;
+    char nome[50];
+    char cpf[20];
+} Cliente;
+
+typedef struct {
+    int id;
+    char nome[50];
+    float preco;
+} Produto;
+
+typedef struct {
+    int produtoId;
+    int quantidade;
+    float valorUnitario;
+} Item;
+
+typedef struct {
+    int id;
+    int clienteId;
+    Item itens[5];
+    int totalItens;
+    float total;
+} Venda;
+
+// Bases de dados
+Cliente clientes[MAX];
+Produto produtos[MAX];
+Venda vendas[MAX];
+int qtdClientes = 0, qtdProdutos = 0, qtdVendas = 0;
+
+// Funções
+void cadastrarCliente() {
+    Cliente c;
+    c.id = qtdClientes + 1;
+    printf("Nome: ");
+    scanf(" %[^\n]", c.nome);
+    printf("CPF: ");
+    scanf(" %[^\n]", c.cpf);
+    clientes[qtdClientes++] = c;
+    printf("Cliente cadastrado com ID %d\n", c.id);
+}
+
+void listarClientes() {
+    for (int i = 0; i < qtdClientes; i++)
+        printf("ID: %d | Nome: %s | CPF: %s\n", clientes[i].id, clientes[i].nome, clientes[i].cpf);
+}
+
+void cadastrarProduto() {
+    Produto p;
+    p.id = qtdProdutos + 1;
+    printf("Nome do produto: ");
+    scanf(" %[^\n]", p.nome);
+    printf("Preço: ");
+    scanf("%f", &p.preco);
+    produtos[qtdProdutos++] = p;
+    printf("Produto cadastrado com ID %d\n", p.id);
+}
+
+void listarProdutos() {
+    for (int i = 0; i < qtdProdutos; i++)
+        printf("ID: %d | Nome: %s | Preço: %.2f\n", produtos[i].id, produtos[i].nome, produtos[i].preco);
+}
+
+void cadastrarVenda() {
+    Venda v;
+    v.id = qtdVendas + 1;
+    v.total = 0;
+    v.totalItens = 0;
+
+    printf("ID do cliente: ");
+    scanf("%d", &v.clienteId);
+
+    int mais = 1;
+    while (mais && v.totalItens < 5) {
+        Item item;
+        printf("ID do produto: ");
+        scanf("%d", &item.produtoId);
+        printf("Quantidade: ");
+        scanf("%d", &item.quantidade);
+
+        item.valorUnitario = produtos[item.produtoId - 1].preco;
+        v.total += item.quantidade * item.valorUnitario;
+        v.itens[v.totalItens++] = item;
+
+        printf("Adicionar mais item? (1=Sim / 0=Não): ");
+        scanf("%d", &mais);
+    }
+
+    vendas[qtdVendas++] = v;
+    printf("Venda cadastrada. Total: R$ %.2f\n", v.total);
+}
+
+void listarVendas() {
+    for (int i = 0; i < qtdVendas; i++) {
+        printf("\nVenda ID: %d | Cliente: %s\n", vendas[i].id, clientes[vendas[i].clienteId - 1].nome);
+        for (int j = 0; j < vendas[i].totalItens; j++) {
+            int pid = vendas[i].itens[j].produtoId - 1;
+            printf("Produto: %s | Qtd: %d | Valor: %.2f\n",
+                produtos[pid].nome,
+                vendas[i].itens[j].quantidade,
+                vendas[i].itens[j].valorUnitario
+            );
+        }
+        printf("Total da venda: R$ %.2f\n", vendas[i].total);
+    }
+}
+
+// Menu
+void menu() {
+    int op;
+    do {
+        printf("\n1. Cadastrar Cliente\n2. Listar Clientes\n3. Cadastrar Produto\n4. Listar Produtos\n5. Cadastrar Venda\n6. Listar Vendas\n0. Sair\nEscolha: ");
+        scanf("%d", &op);
+
+        switch (op) {
+            case 1: cadastrarCliente(); break;
+            case 2: listarClientes(); break;
+            case 3: cadastrarProduto(); break;
+            case 4: listarProdutos(); break;
+            case 5: cadastrarVenda(); break;
+            case 6: listarVendas(); break;
+        }
+    } while (op != 0);
+}
+
+int main() {
+    menu();
+    return 0;
+}
